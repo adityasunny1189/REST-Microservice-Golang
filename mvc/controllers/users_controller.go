@@ -6,20 +6,28 @@ import (
 	"strconv"
 
 	"github.com/adityasunny1189/REST-Microservice-Golang/mvc/services"
+	"github.com/adityasunny1189/REST-Microservice-Golang/mvc/utils"
 )
 
 func GetUsers(res http.ResponseWriter, req *http.Request) {
 	userId, err := strconv.ParseInt(req.URL.Query().Get("user_id"), 10, 64)
 	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
-		res.Write([]byte("user id must be a number"))
+		apperr := &utils.ApplicationError{
+			Message:    "user id must be a number",
+			StatusCode: http.StatusBadRequest,
+			Code:       "invalid id",
+		}
+		jsonerrmsg, _ := json.Marshal(apperr)
+		res.WriteHeader(apperr.StatusCode)
+		res.Write(jsonerrmsg)
 		return
 	}
 
-	user, err := services.GetUser(userId)
-	if err != nil {
-		res.WriteHeader(http.StatusNotFound)
-		res.Write([]byte(err.Error()))
+	user, apperr := services.GetUser(userId)
+	if apperr != nil {
+		res.WriteHeader(apperr.StatusCode)
+		jsonerrmsg, _ := json.Marshal(apperr)
+		res.Write(jsonerrmsg)
 		return
 	}
 

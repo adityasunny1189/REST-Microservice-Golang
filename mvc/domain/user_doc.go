@@ -1,6 +1,8 @@
 package domain
 
-import "errors"
+import (
+	"github.com/adityasunny1189/REST-Microservice-Golang/mvc/utils"
+)
 
 var (
 	users = map[int64]*User{
@@ -13,9 +15,13 @@ var (
 	}
 )
 
-func GetUser(userid int64) (*User, error) {
+func GetUser(userid int64) (*User, *utils.ApplicationError) {
 	if user := users[userid]; user != nil {
 		return user, nil
 	}
-	return nil, errors.New("user not found")
+	return nil, &utils.ApplicationError{
+		Message:    "user not found",
+		StatusCode: 404,
+		Code:       "please check user id",
+	}
 }
